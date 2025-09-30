@@ -41,8 +41,15 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
+  
+
+
+    "moduleResolution": "node",
+    
+    "resolveJsonModule": true,
     "skipLibCheck": true,
+    "baseUrl": "./src"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "prisma/seed.ts"],
   "exclude": ["node_modules"]
 }

@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,11 +6,80 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-model employees {
-  id        Int      @id @default(autoincrement())
-  empname     String   @db.VarChar(255)
-  department String    @db.VarChar(255)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
+model user {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  username  String   @unique @db.VarChar(255)
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  phone     String   @db.VarChar(20)
+  createdAt DateTime @default(now())
+
+  role_id   Int?   // ✅ make nullable
+  dept_id   Int?
+  role       Role?        @relation(fields: [role_id], references: [role_id])
+  department Department?  @relation("DepartmentUsers", fields: [dept_id], references: [department_id])
+  departmentsCreated Department[] @relation("DepartmentCreatedBy")
+  rolesCreated       Role[]       @relation("RoleCreatedBy")
+
+  attandances Attandance[]
+  leaves      leaves[]
+  profile     Profile[]
+
+  @@map("users")
+}
+
+
+model Role {
+  role_id   Int    @id @default(autoincrement())
+  rolename  String @db.VarChar(255)
+  roledesc  String @db.VarChar(255)
+
+  createdBy     Int?
+  createdByUser user? @relation("RoleCreatedBy", fields: [createdBy], references: [id])
+
+  users user[]
+
+  @@map("roles")
+}
+
+
+model Department {
+  department_id   Int     @id @default(autoincrement())
+  departmentname  String  @db.VarChar(255)
+  departmentdesc  String  @db.VarChar(255)
+  status          Boolean @default(true)
+
+  createdBy     Int
+  createdByUser user    @relation("DepartmentCreatedBy", fields: [createdBy], references: [id])
+  users         user[]  @relation("DepartmentUsers")
+
+  @@map("departments")
+}
+
+model Attandance {
+  attandance_id Int      @id @default(autoincrement())
+  user_id       Int
+  date          DateTime @default(now())
+  status        Boolean  @default(true)
+
+  user user @relation(fields: [user_id], references: [id])
+}
+
+model leaves {
+  leave_id Int      @id @default(autoincrement())
+  user_id  Int
+  date     DateTime @default(now())
+  status   Boolean  @default(true)
+
+  user user @relation(fields: [user_id], references: [id])
+}
+
+model Profile {
+  profile_id Int  @id @default(autoincrement())
+  user_id    Int
+  user       user @relation(fields: [user_id], references: [id])
+
+  @@map("profiles")
 }
