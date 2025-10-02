@@ -16,7 +16,7 @@ model user {
   phone     String   @db.VarChar(20)
   createdAt DateTime @default(now())
 
-  role_id   Int?   // ✅ make nullable
+  role_id   Int?   
   dept_id   Int?
   role       Role?        @relation(fields: [role_id], references: [role_id])
   department Department?  @relation("DepartmentUsers", fields: [dept_id], references: [department_id])
@@ -35,6 +35,8 @@ model Role {
   role_id   Int    @id @default(autoincrement())
   rolename  String @db.VarChar(255)
   roledesc  String @db.VarChar(255)
+
+  
 
   createdBy     Int?
   createdByUser user? @relation("RoleCreatedBy", fields: [createdBy], references: [id])
@@ -63,6 +65,9 @@ model Attandance {
   user_id       Int
   date          DateTime @default(now())
   status        Boolean  @default(true)
+  check_in  DateTime?
+  check_out DateTime?
+
 
   user user @relation(fields: [user_id], references: [id])
 }
@@ -77,9 +82,18 @@ model leaves {
 }
 
 model Profile {
+
   profile_id Int  @id @default(autoincrement())
-  user_id    Int
+  user_id    Int @unique
   user       user @relation(fields: [user_id], references: [id])
+  profile_pic String? @db.VarChar(500) 
+  address String?
+  city String? 
+  gender String?
+
+
+
+
 
   @@map("profiles")
 }

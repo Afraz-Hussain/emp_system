@@ -1,4 +1,3 @@
-
 import * as bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from "@prisma/client";
@@ -58,6 +57,7 @@ export const loginUser = async (req: Request, res: Response) => {
         res.cookie("access_token", token, {
             httpOnly: true,
         }).status(200).json(others);
+       
         
     } catch (err: unknown) { 
         console.error("Error in login:", err);

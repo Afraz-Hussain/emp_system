@@ -10,12 +10,25 @@ import cookieParser from "cookie-parser";
 import authRoute from "../routes/auth"
 import deptRoute from "../routes/departments_route"
 import roleRoute from "../routes/roles_route"
-app.use(express.json());
+import userRoute from  "../routes/users_route"
+import profileRoute from  "../routes/profile_routes"
+import attandaceRoute from "../routes/attandance_route"
 
+app.use(express.json());
 app.use(cookieParser());
+
 app.use("/backend/auth", authRoute);// for login and register  
 app.use("/backend/dept",deptRoute);// for departments creation only  by superAdmin...
 app.use("/backend/roles",roleRoute)// to create roles only by super admin...
+
+app.use("/backend/users",userRoute);// for all users 
+// to upload images after loging 
+app.use("/backend/profile",profileRoute)
+
+// to mark attandance
+
+app.use("/backend/attandance",attandaceRoute)
+
 
 
 app.listen(PORT, () => {

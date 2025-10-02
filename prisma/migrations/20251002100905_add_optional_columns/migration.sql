@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `roles` ADD COLUMN `address` VARCHAR(191) NULL,
+    ADD COLUMN `city` VARCHAR(191) NULL,
+    ADD COLUMN `gender` VARCHAR(191) NULL;

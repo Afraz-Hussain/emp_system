@@ -6,15 +6,7 @@ export interface JwtPayload {
   username: string;
   role_id: number;
 }
- // make another token verifyRole 
-export const verifyRole = (role_id: number) => (req: Request, res: Response, next: NextFunction) => {
-  const user = (req as any).user as JwtPayload;
 
-  if (user.role_id !== role_id) {
-    return res.status(403).json({ message: "Access denied" });
-  }
-  next();
-};
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const token =req.cookies.access_token || req.headers["authorization"]?.split(" ")[1];
 

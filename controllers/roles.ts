@@ -13,7 +13,6 @@ export const createRole = async (req: Request, res: Response) => {
         message: "No token provided, authorization denied",
       });
     }
-
     const roledata = await prisma.role.create({
       data: {
         rolename,
