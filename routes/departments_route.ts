@@ -2,7 +2,7 @@ import express from "express"
 
 const router = express.Router();
 
-import { createdept,getdepts, getactivedept,getsingledept,updatedept,deletedept } 
+import { createdept,getdepts, getactivedept,getsingledept,updatedept,deletedept,assignDept } 
 from "../controllers/departments";
 
 
@@ -14,14 +14,19 @@ import { authorizeRoles } from "../middlewares/Verify_admin";
 // to create department
 router.post("/createdept",verifyToken,authorizeRoles(1),createdept);
 // to get all departments
-router.get("/getdept",verifyToken,authorizeRoles(1),getdepts);
+router.get("/getdept",verifyToken,authorizeRoles(1,3),getdepts);
 // to get all departments which are active
-router.get("/getactivedept",verifyToken,authorizeRoles(1),getactivedept);
+router.get("/getactivedept",verifyToken,authorizeRoles(1,3),getactivedept);
 // to get single department based on id
-router.get("/getsingledept/:id",verifyToken,authorizeRoles(1),getsingledept);
+router.get("/getsingledept/:id",verifyToken,authorizeRoles(1,3),getsingledept);
 // to update department
 router.put("/updatedept/:id",verifyToken,authorizeRoles(1),updatedept);
 // to delete departments...
 router.delete("/deletedept/:id",verifyToken,authorizeRoles(1),deletedept);
+
+// to assign dept
+
+router.put("/assign-dept",verifyToken,authorizeRoles(1),assignDept)
+
 export default router;
 

@@ -5,13 +5,12 @@ const prisma = new PrismaClient();
 
 export const markAttendance = async (req: any, res: Response) => {
   try {
-    const userId = req.user.userId; 
-    
-    const today = new Date();
+    const userId = req.user.userId;
+    const now = new Date();
 
-    // today's boundaries
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // whole day
+    // Create separate date objects to avoid mutation
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
     const checkAttendance = await prisma.attandance.findFirst({
       where: {
@@ -21,15 +20,14 @@ export const markAttendance = async (req: any, res: Response) => {
     });
 
     if (checkAttendance) {
-      return res.json({ message: "Already attendance has been marked" });
+      return res.status(400).json({ message: "Attendance already marked for today" });
     }
 
-    // Create new attendance with check-in time
     const attendance = await prisma.attandance.create({
       data: {
         user_id: userId,
-        date: new Date(),
-        check_in: new Date(),
+        date: now,
+        check_in: now,
         status: true,
       },
     });
@@ -38,5 +36,79 @@ export const markAttendance = async (req: any, res: Response) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const docheckout = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.userId;
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+    // Check if attendance exists for today
+    const checkAttendance = await prisma.attandance.findFirst({
+      where: {
+        user_id: userId,
+        date: { gte: startOfDay, lte: endOfDay },
+      },
+    });
+
+    if (!checkAttendance) {
+      return res.status(400).json({ message: "Attendance not marked, please check-in first" });
+    }
+
+    if (checkAttendance.check_out) {
+      return res.status(400).json({ message: "Already checked out for today" });
+    }
+
+    await prisma.attandance.update({
+      where: {
+        attandance_id: checkAttendance.attandance_id,
+      },
+      data: {
+        check_out: now,
+        status: false,
+      },
+    });
+
+    res.status(200).json({ message: "Checked out successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const deleteAttendance = async (req: any, res: Response) => {
+  try {
+    const userid = req.user.userId;
+    
+    
+    if (!userid || req.user.role_id !== 1) {
+      return res.status(403).json({ error: "Only super admin can delete attendance" });
+    }
+
+    const attendanceId = Number(req.params.attendanceId);
+
+    if (!attendanceId || isNaN(attendanceId)) {
+      return res.status(400).json({ error: "Valid attendance ID is required" });
+    }
+
+    const attendance = await prisma.attandance.findUnique({
+      where: { attandance_id: attendanceId },
+    });
+
+    if (!attendance) {
+      return res.status(404).json({ error: "Attendance record not found" });
+    }
+
+    await prisma.attandance.delete({
+      where: { attandance_id: attendanceId },
+    });
+
+    return res.status(200).json({ message: "Attendance deleted successfully" });
+  } catch (err) {
+    console.error("Delete attendance error:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
