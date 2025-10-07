@@ -16,10 +16,10 @@ model user {
   phone     String   @db.VarChar(20)
   createdAt DateTime @default(now())
 
-  role_id   Int?   
-  dept_id   Int?
-  role       Role?        @relation(fields: [role_id], references: [role_id])
-  department Department?  @relation("DepartmentUsers", fields: [dept_id], references: [department_id])
+  role_id            Int?
+  dept_id            Int?
+  role               Role?        @relation(fields: [role_id], references: [role_id])
+  department         Department?  @relation("DepartmentUsers", fields: [dept_id], references: [department_id])
   departmentsCreated Department[] @relation("DepartmentCreatedBy")
   rolesCreated       Role[]       @relation("RoleCreatedBy")
 
@@ -30,13 +30,10 @@ model user {
   @@map("users")
 }
 
-
 model Role {
-  role_id   Int    @id @default(autoincrement())
-  rolename  String @db.VarChar(255)
-  roledesc  String @db.VarChar(255)
-
-  
+  role_id  Int    @id @default(autoincrement())
+  rolename String @db.VarChar(255)
+  roledesc String @db.VarChar(255)
 
   createdBy     Int?
   createdByUser user? @relation("RoleCreatedBy", fields: [createdBy], references: [id])
@@ -46,54 +43,56 @@ model Role {
   @@map("roles")
 }
 
-
 model Department {
-  department_id   Int     @id @default(autoincrement())
-  departmentname  String  @db.VarChar(255)
-  departmentdesc  String  @db.VarChar(255)
-  status          Boolean @default(true)
+  department_id   Int       @id @default(autoincrement())
+  departmentname  String    @db.VarChar(255)
+  departmentdesc  String    @db.VarChar(255)
+  departmenthead  String?   @db.VarChar(255)
+  total_employees Int?
+  created_at      DateTime? @default(now())
+  updated_at      DateTime? @updatedAt
+  status          Boolean   @default(true)
 
   createdBy     Int
-  createdByUser user    @relation("DepartmentCreatedBy", fields: [createdBy], references: [id])
-  users         user[]  @relation("DepartmentUsers")
+  createdByUser user   @relation("DepartmentCreatedBy", fields: [createdBy], references: [id])
+  users         user[] @relation("DepartmentUsers")
 
   @@map("departments")
 }
 
 model Attandance {
-  attandance_id Int      @id @default(autoincrement())
+  attandance_id Int       @id @default(autoincrement())
   user_id       Int
-  date          DateTime @default(now())
-  status        Boolean  @default(true)
-  check_in  DateTime?
-  check_out DateTime?
-
+  date          DateTime  @default(now())
+  status        Boolean   @default(true)
+  check_in      DateTime?
+  check_out     DateTime?
 
   user user @relation(fields: [user_id], references: [id])
 }
 
 model leaves {
-  leave_id Int      @id @default(autoincrement())
-  user_id  Int
-  date     DateTime @default(now())
-  status   Boolean  @default(true)
+  leave_id   Int       @id @default(autoincrement())
+  user_id    Int
+  date       DateTime  @default(now())
+  reason     String?
+  start_date DateTime?
+  end_date   DateTime?
+  status     String?   @default("Pending")
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
 
   user user @relation(fields: [user_id], references: [id])
 }
 
 model Profile {
-
-  profile_id Int  @id @default(autoincrement())
-  user_id    Int @unique
-  user       user @relation(fields: [user_id], references: [id])
-  profile_pic String? @db.VarChar(500) 
-  address String?
-  city String? 
-  gender String?
-
-
-
-
+  profile_id  Int     @id @default(autoincrement())
+  user_id     Int     @unique
+  user        user    @relation(fields: [user_id], references: [id])
+  profile_pic String? @db.VarChar(500)
+  address     String?
+  city        String?
+  gender      String?
 
   @@map("profiles")
 }

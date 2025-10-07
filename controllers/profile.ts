@@ -22,7 +22,7 @@ export const uploadProfilePic = async (req: any, res: Response) => {
       create: { user_id: userId, profile_pic: imagePath },
     });
 
-    res.status(200).json({ message: "Profile picture updated", profile });
+    res.status(200).json({ message: "Profile picture uploaded", profile });
    
 
   } catch (error) {
@@ -43,7 +43,7 @@ export const deleteprofile=async(req:Request,res:Response)=>{
         return res.status(404).json({ error: "No profile picture found" });
       }
   
-      // Delete file from uploads folder
+     
       const filePath = path.join("../upload_pics", profile.profile_pic);// here folder name and db col name will come 
   
       if (fs.existsSync(filePath)) {
@@ -75,7 +75,7 @@ export const updateprofile = async (req: any, res: Response) => {
     });
 
     return res.status(200).json({
-      message: "Profile details have been added",
+      message: "Profile picture has been updated",
       profile: makeprofile,
     });
   } catch (error) {

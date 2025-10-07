@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import router from "../routes/auth";
 
 const prisma = new PrismaClient();
 
@@ -68,7 +69,6 @@ export const docheckout = async (req: any, res: Response) => {
       },
       data: {
         check_out: now,
-        status: false,
       },
     });
 
@@ -79,7 +79,7 @@ export const docheckout = async (req: any, res: Response) => {
   }
 };
 
-export const deleteAttendance = async (req: any, res: Response) => {
+export const deleteAttendance = async(req: any, res: Response) => {
   try {
     const userid = req.user.userId;
     
@@ -110,5 +110,36 @@ export const deleteAttendance = async (req: any, res: Response) => {
   } catch (err) {
     console.error("Delete attendance error:", err);
     return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const viewattendace = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.userId;
+    const attendanceRecords = await prisma.attandance.findMany({
+      where: { user_id: userId },
+      orderBy: { date: "desc" },
+    });
+
+    if (!attendanceRecords.length) {
+      return res.status(404).json({ message: "No attendance records found" });
+    }
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    const todayRecord = attendanceRecords.find(
+      (r) => r.date >= startOfDay && r.date <= endOfDay
+    );
+
+    const status = todayRecord ? "Present" : "Absent";
+    return res.status(200).json({
+      message: "Attendance fetched ",
+      todayStatus: status,
+      totalDaysPresent: attendanceRecords.length,
+      records: attendanceRecords,
+    });
+  } catch (err) {
+    console.error("Error fetching attendance:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

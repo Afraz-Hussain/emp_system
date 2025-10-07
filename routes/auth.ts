@@ -1,13 +1,14 @@
 import express from "express"
 const router = express.Router();
 
-import { registeruser, loginUser, assignRole } from "../controllers/auth";
+import { registeruser, loginUser,logoutuser } from "../controllers/auth";
 import { verifyToken } from "../middlewares/middleware";
 import  {authorizeRoles} from "../middlewares/Verify_admin"
 
 router.post("/register",registeruser);
 router.post("/login",loginUser);
-router.put("/assign-role", verifyToken, assignRole)
+router.post("/logout",logoutuser);
+
 
 export default router;
 

@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 const prisma = new PrismaClient();
 // to create new department
 export const createdept = async (req: Request, res: Response) => {
-    const { departmentname, departmentdesc, status } = req.body;
+    const { departmentname, departmentdesc, status,departmenthead } = req.body;
     const user = (req as any).user; // this will treat req object to as having the any type
     if (!user) {
       return res.status(401).json({
@@ -17,11 +17,20 @@ export const createdept = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Name and description are required" });
     }  
     try {
+// finding how many employees are in one department
+
+const findemps = await prisma.user.count({
+  where: { department: { departmentname } },
+});
+
+
       const department = await prisma.department.create({
         data: {
           departmentname,
           departmentdesc,
           status: status ?? true, 
+          departmenthead,
+          total_employees:findemps,
           createdBy: user.userId, 
         },
       });
@@ -174,7 +183,11 @@ export const assignDept=async(req:Request,res:Response)=>{
       data: { dept_id: department_id },
       include: { department: true }
     });
-
+    //this is to increment in count for finfing total employees in 1 dept
+    await prisma.department.update({
+      where: { department_id },
+      data: { total_employees: { increment: 1 } },
+    });
     return res.status(200).json({
       message: "Department assigned successfully",
       user: updatedUser
@@ -182,5 +195,31 @@ export const assignDept=async(req:Request,res:Response)=>{
   } catch (error) {
     console.error("Error assigning department:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+// view your dept not whole depts
+
+export const yourdept = async (req: any, res: Response) => {
+  try {
+    const userId = req.user.userId; 
+console.log(userId,"from top")
+    const employee = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { department: true }, 
+    });
+    console.log(employee,"emo")
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+    return res.status(200).json({
+      message: "Department details are: ",
+      department: employee.department,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error fetching department details" });
   }
 };

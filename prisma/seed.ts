@@ -18,6 +18,7 @@ async function main() {
       password: hashedPassword,   
       phone: "03001234567",
       role_id: 1,
+       
     },
   });
 

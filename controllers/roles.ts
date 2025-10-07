@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 const prisma = new PrismaClient();
-
 // CREATE ROLE
 export const createRole = async (req: Request, res: Response) => {
   try {
@@ -17,7 +16,7 @@ export const createRole = async (req: Request, res: Response) => {
       data: {
         rolename,
         roledesc,
-       createdBy:user.user_id
+       createdBy:user.userId
       },
     });
 
@@ -29,7 +28,6 @@ export const createRole = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Error creating role", error });
   }
 };
-
 // GET ALL ROLES
 export const getRoles = async (req: Request, res: Response) => {
   try {
@@ -40,7 +38,6 @@ export const getRoles = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Error fetching roles", error });
   }
 };
-
 // GET ROLE BY ID
 export const getRoleById = async (req: Request, res: Response) => {
   try {
@@ -58,7 +55,6 @@ export const getRoleById = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Error fetching role", error });
   }
 };
-
 // UPDATE ROLE
 export const updateRole = async (req: Request, res: Response) => {
   try {
@@ -78,7 +74,43 @@ export const updateRole = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Error updating role", error });
   }
 };
+// Assign role
+export const assignRole = async (req: Request, res: Response) => {
+  try {
+    const { userId, roleId } = req.body;
 
+    if (!userId || !roleId) {
+      return res.status(400).json({ message: "userId and roleId are required" });
+    }
+
+    // Check if role exists
+    const role = await prisma.role.findUnique({
+      where: { role_id: roleId }
+    });
+
+    if (!role) {
+      return res.status(404).json({ message: "Role not found" });
+    }
+    if (!userId) {
+      return res.status(404).json({ message: "userID not found" });
+    }
+
+    // Update user role
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { role_id: roleId },
+      include: { role: true }
+    });
+
+    return res.status(200).json({
+      message: "Role assigned successfully",
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error("Error assigning role:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 // DELETE ROLE
 export const deleteRole = async (req: Request, res: Response) => {
   try {

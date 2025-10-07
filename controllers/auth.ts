@@ -19,14 +19,14 @@ export const registeruser = async (req: Request, res: Response) => {
           email,
           password: hashedPassword,
           phone,
-          role_id: role_id||null,       
-          dept_id: dept_id || null,// check convention
+          role_id: role_id||4, // same as it will be assigned by admin...      
+          dept_id: dept_id || null, // later will be assigned by superAdmin
         },
       });   
   
-      res.status(201).json({ message: "New user registered", user: newUser });
+      res.status(201).json({ message: "New user  has been registered", user: newUser });
     } catch (err) {
-      console.error("Error in register:", err);
+      console.error("Error while register:", err);
       res.status(500).json({ message: "Error in register", error: err });
     }
   };
@@ -68,39 +68,24 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 };
 
-// only super admin will assign role to users based on id and rle id
+// To logout 
 
-export const assignRole = async (req: Request, res: Response) => {
-    try {
-      const { userId, roleId } = req.body;
-  
-      if (!userId || !roleId) {
-        return res.status(400).json({ message: "userId and roleId are required" });
-      }
-  
-      // Check if role exists
-      const role = await prisma.role.findUnique({
-        where: { role_id: roleId }
-      });
-  
-      if (!role) {
-        return res.status(404).json({ message: "Role not found" });
-      }
-  
-      // Update user role
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: { role_id: roleId },
-        include: { role: true }
-      });
-  
-      return res.status(200).json({
-        message: "Role assigned successfully",
-        user: updatedUser
-      });
-    } catch (error) {
-      console.error("Error assigning role:", error);
-      return res.status(500).json({ message: "Internal server error" });
+export const logoutuser=async(req:Request,res:Response)=>{
+    try{
+
+        res.clearCookie("access_token", {
+            httpOnly: true,
+            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",
+          });
+      
+          return res.status(200).json({ message: "User logged out successfully" });
+
     }
-  };
+    catch(error){
+res.status(500).json({message:"ERROR,",error})
+    }
+}
+
+
 
