@@ -2,8 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 
 const prisma = new PrismaClient();
-
-
 export const createleave = async (req: any, res: Response) => {
   try {
     const userId = req.user.userId
@@ -32,7 +30,6 @@ export const createleave = async (req: any, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 }
-
 export const updateleave = async (req: any, res: Response) => {
   try {
     const { leave_id } = req.params;
@@ -57,7 +54,6 @@ export const updateleave = async (req: any, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 export const getMyLeaves = async (req: any, res: Response) => {
   try {
     const userId = req.user.userId;

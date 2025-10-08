@@ -22,10 +22,10 @@ export const sendmail = async (req: Request, res: Response) => {
       subject,
       text,
     });
-    res.status(200).json({ message: "Email sent successfully", info });
+    res.status(200).json({ message: "Email has been sent successfully !", info });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Email not sent" });
+    res.status(500).json({ message: "Email  has not  been sent" });
   }
 };
 
