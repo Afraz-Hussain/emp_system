@@ -15,6 +15,7 @@ model user {
   password  String   @db.VarChar(255)
   phone     String   @db.VarChar(20)
   createdAt DateTime @default(now())
+  is_verified  Boolean @default(false)
 
   role_id            Int?
   dept_id            Int?

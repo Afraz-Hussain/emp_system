@@ -1,0 +1,33 @@
+--------
+REDIS
+----------
+Redis is a super-fast in-memory database.
+It stores temporary data, messages, and queues efficiently.
+
+In your case:
+Redis stores queued “jobs” like send OTP email, generate report, etc.
+Workers read jobs from Redis and execute them.
+
+🐂 BullMQ — The Library
+
+BullMQ is a Node.js library that uses Redis to manage background jobs.
+
+You can:
+
+Create queues for tasks (like emailQueue, otpQueue, etc.)
+
+Add jobs to them from your Express routes.
+
+Run workers that process these jobs independently.
+
+-------
+worker 
+-------
+
+In a queuing system, a worker is a process or 
+thread that actively monitors a job queue and executes tasks (or "jobs") 
+as they become available
+
+
+queue
+make sure to run queue it will aassign task automatically
