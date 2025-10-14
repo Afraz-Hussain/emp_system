@@ -44,7 +44,7 @@ const otpWorker = new Worker("otpQueue",async (job) => {
 );
 otpWorker.on("completed", (job) => {
   console.log(`🎉 OTP Job ${job.id} completed`);
-});
+});''
 otpWorker.on("failed", (job, err) => {
   console.error(`OTP Job ${job?.id} failed:`, err.message);
 });

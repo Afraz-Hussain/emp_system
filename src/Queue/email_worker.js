@@ -60,14 +60,13 @@ const emailWorker = new Worker(
           `,
         });
 
-        console.log(`✅ Email sent successfully to ${to}`);
+        console.log(` Email sent successfully to ${to}`);
         return { success: true, messageId: info.messageId };
       }
 
       if (job.name === "sendEmailWithAttachment") {
         const { to, subject, text, file } = job.data;
 
-        // 🧠 Important safety check
         if (!file || !file.buffer) {
           throw new Error("Attachment file is missing or invalid");
         }
@@ -82,19 +81,19 @@ const emailWorker = new Worker(
           attachments: [
             {
               filename: file.originalname,
-              content: Buffer.from(file.buffer, "base64"), // ✅ Decode base64
+              content: Buffer.from(file.buffer, "base64"), 
               contentType: file.mimetype,
             },
           ],
         });
 
-        console.log(`✅ Email with attachment sent to ${to}`);
+        console.log(` Email with attachment sent to ${to}`);
         return { success: true, messageId: info.messageId };
       }
 
       throw new Error(`Unknown job type: ${job.name}`);
     } catch (error) {
-      console.error(`❌ Failed to send email:`, error.message);
+      console.error(` Failed to send email:`, error.message);
       throw error; // Trigger BullMQ retry
     }
   },

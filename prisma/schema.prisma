@@ -16,17 +16,18 @@ model user {
   phone     String   @db.VarChar(20)
   createdAt DateTime @default(now())
   is_verified  Boolean @default(false)
-
   role_id            Int?
   dept_id            Int?
   role               Role?        @relation(fields: [role_id], references: [role_id])
   department         Department?  @relation("DepartmentUsers", fields: [dept_id], references: [department_id])
   departmentsCreated Department[] @relation("DepartmentCreatedBy")
   rolesCreated       Role[]       @relation("RoleCreatedBy")
-
   attandances Attandance[]
   leaves      leaves[]
   profile     Profile[]
+  chatMembers        ChatMember[]
+  Messages      Message[]
+
 
   @@map("users")
 }
@@ -105,4 +106,33 @@ model Otp {
   deleted_at  DateTime?
   is_verified Boolean  @default(false)
   is_expired  Boolean  @default(false)
+}
+// model for chatApp work
+model ChatRoom {
+  id          Int           @id @default(autoincrement())
+  name        String
+  createdBy   Int
+  createdAt   DateTime      @default(now())
+  totalmembers Int          @default(0)
+  members     ChatMember[]
+  messages    Message[]
+}
+model ChatMember {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  roomId    Int
+  joinedAt  DateTime   @default(now())
+  room      ChatRoom   @relation(fields: [roomId], references: [id])
+  user      user       @relation(fields: [userId], references: [id])
+ 
+}
+// conversation
+model Message {
+  id        Int        @id @default(autoincrement())
+  roomId    Int
+  senderId  Int
+  content   String
+  createdAt DateTime   @default(now())
+  room      ChatRoom   @relation(fields: [roomId], references: [id])
+ sender user     @relation(fields: [senderId], references: [id])
 }

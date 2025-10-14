@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Room Test</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    #chat {
+      width: 400px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    #messages {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      margin-bottom: 10px;
+      padding: 10px;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+    }
+    button {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Emp chat like slack</h1>
+
+  <div id="chat">
+    <div>
+      <label>Room ID:</label>
+      <input type="number" id="roomId" placeholder="Enter room ID" />
+      <label>User ID:</label>
+      <input type="number" id="userId" placeholder="Enter user ID" />
+      <button id="joinBtn">Join Room</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <div>
+      <input type="text" id="messageInput" placeholder="Type message..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    // Connect to backend socket
+    const socket = io("http://localhost:3000");
+
+    const roomIdInput = document.getElementById("roomId");
+    const userIdInput = document.getElementById("userId");
+    const messageInput = document.getElementById("messageInput");
+    const messagesDiv = document.getElementById("messages");
+
+    document.getElementById("joinBtn").onclick = () => {
+      const roomId = Number(roomIdInput.value);
+      const userId = Number(userIdInput.value);
+      socket.emit("joinRoom", { roomId, userId });
+    };
+
+    document.getElementById("sendBtn").onclick = () => {
+      const roomId = Number(roomIdInput.value);
+      const senderId = Number(userIdInput.value);
+      const content = messageInput.value;
+
+      if (content.trim() === "") return;
+
+      socket.emit("sendMessage", { roomId, senderId, content });
+      messageInput.value = "";
+    };
+
+    socket.on("joinedRoom", ({ roomId }) => {
+      addMessage(` Joined room ${roomId}`);
+    });
+
+    socket.on("receiveMessage", (message) => {
+      addMessage(`${message.sender.username}: ${message.content}`);
+    });
+
+    socket.on("error", (err) => {
+      addMessage(`${err.message}`);
+    });
+
+    function addMessage(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+  </script>
+</body>
+</html>

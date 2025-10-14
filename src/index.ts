@@ -16,9 +16,12 @@ import attandaceRoute from "../routes/attandance_route"
 import leaveRoute from "../routes/leave_route"
 import mailRoute from "../routes/mail_route" // route for email 
 import optRoute from "../routes/otp_route"  //route to get code
-
+import chatroomRoute from "../routes/chatroom_route"// to make chatRooms only by superAdmin,hr
+import chatMemberRoute from "../routes/chatroute"
+import{registerChatHandlers} from "../controllers/chatapp"
 app.use(express.json());
 app.use(cookieParser());
+
 app.use("/backend/auth", authRoute);// for login and register  
 app.use("/backend/dept",deptRoute);// for departments creation only  by superAdmin...
 app.use("/backend/roles",roleRoute)// to create roles only by super admin...
@@ -33,7 +36,34 @@ app.use("/backend/leave",leaveRoute)
 app.use("/backend/sendmail",mailRoute)// send mail
 // for OTP CODE,VERIFICATION
 app.use("/backend/otp",optRoute)
+// to create ChatRoom
+app.use("/backend/chatroom",chatroomRoute)
 
-app.listen(PORT, () => {
+app.use("/backend/chatmembers",chatMemberRoute)
+
+// -----------------------------------------------------------------------------
+ 
+            // ************* SOCKET.IO WORK*******************
+
+//-------------------------------------------------------------------------------
+// for chat app using socket .io
+import { createServer } from "http"
+import {Server} from "socket.io"
+app.use(express.static('public'))
+const server=createServer(app)
+app.get("/",(req,res)=>{
+  return res.sendFile('index.html')
+})
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+io.on("connection", (socket) => {
+  registerChatHandlers(io, socket);
+});
+// chat app server
+server.listen(PORT, () => {
   console.log(` Server is listening on http://localhost:${PORT}`);
 });
